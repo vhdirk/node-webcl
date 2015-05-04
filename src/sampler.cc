@@ -40,7 +40,7 @@ void Sampler::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(Sampler::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Sampler::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLSampler"));
 
@@ -108,7 +108,7 @@ NAN_METHOD(Sampler::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned(param_value));
+    NanReturnValue(NanNew<Uint32>(param_value));
   }
   case CL_SAMPLER_NORMALIZED_COORDS: {
     cl_uint param_value=0;

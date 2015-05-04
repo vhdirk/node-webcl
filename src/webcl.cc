@@ -46,19 +46,19 @@ namespace webcl {
 static bool atExit=false;
 void registerCLObj(void *clid, WebCLObject* obj) {
   if(!clid || !obj) return;
-  Manager::instance()->add(&obj->handle_, clid);
+  Manager::instance()->add(&obj->persistent(), clid);
 }
 
 void unregisterCLObj(WebCLObject *obj) {
   if(atExit || !obj) return;
-  Manager::instance()->remove(&obj->handle_);
+  Manager::instance()->remove(&obj->persistent());
 }
 
 WebCLObject* findCLObj(void *clid, CLObjType::CLObjType type) {
   if(!clid) return nullptr;
   Persistent<Object>* p=Manager::instance()->find(clid);
 
-  return p ? ObjectWrap::Unwrap<WebCLObject>(*p) : nullptr;
+  return p ? ObjectWrap::Unwrap<WebCLObject>(NanNew(*p)) : nullptr;
 }
 
 void onExit() {
@@ -72,7 +72,7 @@ void onExit() {
 #ifdef LOGGING
   printf("**** GC running ****\n");
 #endif
-  while(!v8::V8::IdleNotification()); // force GC
+  while(!NanIdleNotification(16)); // force GC
 }
 
 NAN_METHOD(getPlatforms) {
@@ -95,7 +95,7 @@ NAN_METHOD(getPlatforms) {
   }
 
 
-  Local<Array> platformArray = Array::New(num_entries);
+  Local<Array> platformArray = NanNew<Array>(num_entries);
   for (uint32_t i=0; i<num_entries; i++) {
     platformArray->Set(i, NanObjectWrapHandle(Platform::New(platforms[i])));
   }
@@ -153,11 +153,11 @@ NAN_METHOD(createContext) {
   }
   else if(args[0]->IsObject()) {
     Local<Object> obj=args[0]->ToObject();
-    Local<String> GLname = String::New("WebGLTexture"); // any WebGL class will do
+    Local<String> GLname = NanNew<String>("WebGLTexture"); // any WebGL class will do
 
     if(!args[0]->IsArray()) {
       Local<String> name=obj->GetConstructorName();
-      String::AsciiValue astr(name);
+      String::Utf8Value astr(name);
       // printf("Found object type: %s\n",*astr);
 
       if(!strcmp(*astr,"WebCLPlatform")) {
@@ -280,7 +280,7 @@ NAN_METHOD(createContext) {
 
           if(!args[1]->IsArray()) {
             Local<String> name=obj->GetConstructorName();
-            String::AsciiValue astr(name);
+            String::Utf8Value astr(name);
 
             if(!strcmp(*astr,"WebCLPlatform")) {
               // case 5.2: WebCLContext createContext(WebGLRenderingContext gl, WebCLPlatform platform, optional CLenum deviceType);

@@ -49,7 +49,7 @@ void Context::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(Context::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Context::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLContext"));
 
@@ -172,7 +172,7 @@ NAN_METHOD(Context::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> arr = Array::New((int)n);
+    Local<Array> arr = Array::New(v8::Isolate::GetCurrent(), (int)n);
     for(uint32_t i=0;i<n;i++) {
       if(devices[i]) {
         WebCLObject *obj=findCLObj((void*)devices[i], CLObjType::Device);
@@ -200,7 +200,7 @@ NAN_METHOD(Context::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> arr = Array::New((int)n);
+    Local<Array> arr = Array::New(v8::Isolate::GetCurrent(), (int)n);
     for(uint32_t i=0;i<n;i++) {
       arr->Set(i,JS_INT((int32_t)ctx[i]));
     }
@@ -231,7 +231,7 @@ NAN_METHOD(Context::createProgram)
   // either we pass a code (string) or binary buffers
   if(args[0]->IsString()) {
     Local<String> str = args[0]->ToString();
-    String::AsciiValue astr(str);
+    String::Utf8Value astr(str);
 
     size_t lengths[]={(size_t) astr.length()};
     const char *strings[]={*astr};
@@ -449,7 +449,7 @@ NAN_METHOD(Context::createBuffer)
     }
     else if(args[2]->IsObject()) {
       Local<Object> obj=args[2]->ToObject();
-      String::AsciiValue name(obj->GetConstructorName());
+      String::Utf8Value name(obj->GetConstructorName());
       if(!strcmp("Buffer",*name))
         host_ptr=Buffer::Data(obj);
       else {
@@ -499,7 +499,7 @@ NAN_METHOD(Context::createImage)
   void *host_ptr=NULL;
   if(!args[2]->IsNull() && !args[2]->IsUndefined() && args[2]->IsObject()) {
     Local<Object> obj=args[2]->ToObject();
-    String::AsciiValue name(obj->GetConstructorName());
+    String::Utf8Value name(obj->GetConstructorName());
     if(!strcmp("Buffer",*name))
       host_ptr=Buffer::Data(obj);
     else
@@ -647,9 +647,9 @@ NAN_METHOD(Context::getSupportedImageFormats)
     return NanThrowError("UNKNOWN ERROR");
   }
 
-  Local<Array> imageFormats = Array::New();
+  Local<Array> imageFormats = Array::New(v8::Isolate::GetCurrent());
   for (uint32_t i=0; i<numEntries; i++) {
-    Local<Object> format = Object::New();
+    Local<Object> format = Object::New(v8::Isolate::GetCurrent());
     format->Set(JS_STR("channelOrder"), JS_INT(image_formats[i].image_channel_order));
     format->Set(JS_STR("channelType"), JS_INT(image_formats[i].image_channel_data_type));
     format->Set(JS_STR("rowPitch"), JS_INT(0));
@@ -807,12 +807,12 @@ NAN_METHOD(Context::getGLContext)
   Context *context = ObjectWrap::Unwrap<Context>(args.This());
 
   if(context->webgl_context_.IsEmpty()) {
-    ThrowException(NanObjectWrapHandle(WebCLException::New("WEBCL_EXTENSION_NOT_ENABLED", ErrorDesc(WEBCL_EXTENSION_NOT_ENABLED), WEBCL_EXTENSION_NOT_ENABLED)));
+    NanThrowError(NanObjectWrapHandle(WebCLException::New("WEBCL_EXTENSION_NOT_ENABLED", ErrorDesc(WEBCL_EXTENSION_NOT_ENABLED), WEBCL_EXTENSION_NOT_ENABLED)));
     NanReturnUndefined();
   }
 
   // TODO this must returns the WebGLRenderingContext object used to create CLGL context
-  NanReturnValue(context->webgl_context_);
+  NanReturnValue(NanNew(context->webgl_context_));
 }
 
 #ifdef HAS_clGetContextInfo // disabled for now as this is not supported in all drivers

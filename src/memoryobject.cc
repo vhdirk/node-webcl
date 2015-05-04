@@ -40,7 +40,7 @@ void MemoryObject::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(MemoryObject::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), MemoryObject::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLMemoryObject"));
 
@@ -112,7 +112,7 @@ NAN_METHOD(MemoryObject::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    NanReturnValue(Integer::NewFromUnsigned(param_value));
+    NanReturnValue(NanNew<Uint32>(param_value));
   }
   case CL_MEM_FLAGS: {
     cl_mem_flags param_value=0;
@@ -125,7 +125,7 @@ NAN_METHOD(MemoryObject::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    NanReturnValue(Integer::NewFromUnsigned((uint32_t)param_value));
+    NanReturnValue(NanNew<Uint32>((uint32_t)param_value));
   }
   case CL_MEM_SIZE:
   case CL_MEM_OFFSET: {
@@ -217,7 +217,7 @@ NAN_METHOD(MemoryObject::getGLObjectInfo)
     return NanThrowError("UNKNOWN ERROR");
   }
 
-  Local<Array> arr=Array::New();
+  Local<Array> arr=NanNew<Array>();
   arr->Set(JS_STR("glObject"), JS_INT(gl_object_name));
   arr->Set(JS_STR("type"), JS_INT(gl_object_type));
   if(gl_object_type==CL_GL_OBJECT_TEXTURE2D || gl_object_type==CL_GL_OBJECT_TEXTURE3D) {
@@ -265,7 +265,7 @@ void WebCLBuffer::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(WebCLBuffer::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLBuffer::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLBuffer"));
 
@@ -403,7 +403,7 @@ void WebCLImage::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(WebCLImage::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLImage::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLImage"));
 
@@ -528,7 +528,7 @@ void WebCLImageDescriptor::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(WebCLImageDescriptor::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLImageDescriptor::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLImageDescriptor"));
 

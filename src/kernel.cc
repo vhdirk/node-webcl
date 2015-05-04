@@ -45,7 +45,7 @@ void Kernel::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(Kernel::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Kernel::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLKernel"));
 
@@ -224,7 +224,7 @@ NAN_METHOD(Kernel::getArgInfo)
   }
 
   // printf("name %s, typeName %s, addressQualifier %x, accessQualifier %x\n", name, typeName, addressQualifier,accessQualifier);
-  Local<Object> kArgInfo = Object::New();
+  Local<Object> kArgInfo = NanNew<v8::Object>();
   kArgInfo->Set(JS_STR("name"), JS_STR(name));
   kArgInfo->Set(JS_STR("typeName"), JS_STR(typeName));
   kArgInfo->Set(JS_STR("addressQualifier"), JS_STR(address_qualifiers[addressQualifier-CL_KERNEL_ARG_ADDRESS_GLOBAL]));
@@ -319,7 +319,7 @@ NAN_METHOD(Kernel::getWorkGroupInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> sizeArray = Array::New(3);
+    Local<Array> sizeArray = NanNew<v8::Array>(3);
     for (int i=0; i<3; i++) {
       sizeArray->Set(i, JS_INT((int32_t)param_value[i]));
     }
@@ -368,7 +368,7 @@ NAN_METHOD(Kernel::setArg)
   }
 
   if(args[1]->IsObject()) {
-    String::AsciiValue str(args[1]->ToObject()->GetConstructorName());
+    String::Utf8Value str(args[1]->ToObject()->GetConstructorName());
     if(!strcmp("WebCLSampler",*str)) {
       // WebCLSampler
       Sampler *s = ObjectWrap::Unwrap<Sampler>(args[1]->ToObject());
@@ -390,7 +390,7 @@ NAN_METHOD(Kernel::setArg)
     }
     else if(!args[1]->IsArray()) {
       Local<Object> obj=args[1]->ToObject();
-      String::AsciiValue name(obj->GetConstructorName());
+      String::Utf8Value name(obj->GetConstructorName());
       char *host_ptr=NULL;
       int len=0;
       int bytes=0;

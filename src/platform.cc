@@ -96,7 +96,7 @@ NAN_METHOD(Platform::getDevices)
     return NanThrowError("UNKNOWN ERROR");
   }
 
-  Local<Array> deviceArray = Array::New(n);
+  Local<Array> deviceArray = NanNew<Array>(n);
   for (uint32_t i=0; i<n; i++) {
     #ifdef LOGGING
     char name[256];
@@ -184,7 +184,7 @@ NAN_METHOD(Platform::enableExtension)
   }
 
   Local<String> name=args[0]->ToString();
-  String::AsciiValue astr(name);
+  String::Utf8Value astr(name);
   bool ret=false;
   if(strcasestr(*astr,"gl_sharing") && (platform->availableExtensions & GL_SHARING)) { platform->enableExtensions |= GL_SHARING; ret = true; }
   else if(strcasestr(*astr,"fp16") && (platform->availableExtensions & FP16))        { platform->enableExtensions |= FP16; ret = true; }

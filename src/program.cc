@@ -44,7 +44,7 @@ void Program::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(Program::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Program::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLProgram"));
 
@@ -126,7 +126,7 @@ NAN_METHOD(Program::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned(value));
+    NanReturnValue(NanNew<Uint32>(value));
   }
   case CL_PROGRAM_CONTEXT: {
     cl_context value=NULL;
@@ -160,7 +160,7 @@ NAN_METHOD(Program::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    Local<Array> deviceArray = Array::New((int)num_devices);
+    Local<Array> deviceArray = NanNew<Array>((int)num_devices);
     for (int i=0; i<(int)num_devices; i++) {
       cl_device_id d = devices[i];
       WebCLObject *obj=findCLObj((void*)d, CLObjType::Device);
@@ -184,7 +184,7 @@ NAN_METHOD(Program::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    Local<String> str=String::New(source, (int) size-1);
+    Local<String> str=NanNew<String>(source, (int) size-1);
     delete[] source;
     NanReturnValue(str);
   }
@@ -201,7 +201,7 @@ NAN_METHOD(Program::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    Local<Array> sizesArray = Array::New((int)nsizes);
+    Local<Array> sizesArray = NanNew<Array>((int)nsizes);
     for (int i=0; i<(int)nsizes; i++) {
       sizesArray->Set(i, JS_INT(sizes[i]));
     }
@@ -435,7 +435,7 @@ NAN_METHOD(Program::build)
 
   char *options=NULL;
   if(!args[1]->IsUndefined() && !args[1]->IsNull() && args[1]->IsString()) {
-    String::AsciiValue str(args[1]);
+    String::Utf8Value str(args[1]);
     // cout<<"str length: "<<str.length()<<endl;
 
     if(str.length()>0) {
@@ -510,7 +510,7 @@ NAN_METHOD(Program::createKernel)
   Program *prog = ObjectWrap::Unwrap<Program>(args.This());
 
   Local<String> str = args[0]->ToString();
-  String::AsciiValue astr(str);
+  String::Utf8Value astr(str);
 
   cl_int ret = CL_SUCCESS;
   cl_kernel kw = ::clCreateKernel(prog->getProgram(), (const char*) *astr, &ret);
@@ -536,7 +536,7 @@ NAN_METHOD(Program::createKernelsInProgram)
   Program *prog = ObjectWrap::Unwrap<Program>(args.This());
 
   Local<String> str = args[0]->ToString();
-  String::AsciiValue astr(str);
+  String::Utf8Value astr(str);
 
   cl_uint num_kernels=0;
   cl_kernel *kernels=NULL;
@@ -558,7 +558,7 @@ NAN_METHOD(Program::createKernelsInProgram)
   }
 
   // build list of WebCLKernels
-  Local<Array> jsKernels=Array::New(num_kernels);
+  Local<Array> jsKernels=NanNew<Array>(num_kernels);
 
   for(cl_uint i=0;i<num_kernels;i++) {
     jsKernels->Set(i, NanObjectWrapHandle( Kernel::New( kernels[i], prog ) ) );

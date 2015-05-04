@@ -44,8 +44,8 @@ using namespace v8;
 #define JS_CL_CONSTANT(name) exports->Set(JS_STR( #name ), JS_INT(CL_ ## name))
 
 #define NODE_DEFINE_CONSTANT_VALUE(exports, name, value)                   \
-  (exports)->Set(NanNew<v8::String>(name),                         \
-                v8::Integer::New(value),                               \
+  (exports)->ForceSet(NanNew<v8::String>(name),                         \
+                NanNew<v8::Integer>(uint32_t(value)),                               \
                 static_cast<v8::PropertyAttribute>(v8::ReadOnly|v8::DontDelete))
 
 #ifdef _WIN32

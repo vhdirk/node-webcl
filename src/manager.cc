@@ -8,7 +8,7 @@ namespace webcl {
 void Manager::add(Persistent<Object>* p, cl_type id) {
 	if(objects.count(p)<1) {
 #ifdef LOGGING
-    WebCLObject *obj=ObjectWrap::Unwrap<WebCLObject>(*p);
+    WebCLObject* obj=ObjectWrap::Unwrap<WebCLObject>(NanNew(*p));
 	  printf("Adding %s cl %p, handle %p\n",obj->getCLObjName(),id,p);
 #endif
 	  objects[p]=id;
@@ -43,9 +43,9 @@ Persistent<Object>* Manager::find(cl_type id) {
 
 void Manager::clear() {
 	for(auto it=objects.begin();it!=objects.end();++it) {
-		auto p= *(it->first);
-    if(!p.IsEmpty() && !p.IsNearDeath()) {
-      WebCLObject *obj=ObjectWrap::Unwrap<WebCLObject>(p);
+		auto p= (it->first);
+    if(!p->IsEmpty() && !p->IsNearDeath()) {
+      WebCLObject *obj=ObjectWrap::Unwrap<WebCLObject>(NanNew(*p));
 		  obj->Destructor();
     }
 	}
@@ -57,9 +57,9 @@ void Manager::stats() {
 	printf("WebCL Manager stats:\n");
 	printf("  #objects: %ld\n",objects.size());
 	for(auto it=references.begin(); it!=references.end(); ++it) {
-		auto p= *(it->first);
-    if(!p.IsEmpty() && !p.IsNearDeath()) {
-      WebCLObject *obj=ObjectWrap::Unwrap<WebCLObject>(p);
+		auto p= (it->first);
+    if(!p->IsEmpty() && !p->IsNearDeath()) {
+      WebCLObject *obj=ObjectWrap::Unwrap<WebCLObject>(NanNew(*p));
 		  int count=it->second;
 		  printf("    %s: %d\n",obj->getCLObjName(),count);
     }

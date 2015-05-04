@@ -87,7 +87,7 @@ using namespace std;
 
 namespace {
 #define JS_STR(...) NanNew<v8::String>(__VA_ARGS__)
-#define JS_INT(val) NanNew<v8::Integer>(val)
+#define JS_INT(val) NanNew<v8::Integer>(uint32_t(val))
 #define JS_NUM(val) NanNew<v8::Number>(val)
 #define JS_BOOL(val) NanNew<v8::Boolean>(val)
 #define JS_RETHROW(tc) NanNew<v8::Local<v8::Value> >(tc.Exception());
@@ -111,9 +111,9 @@ namespace {
     NanThrowTypeError("Argument " #I " must be a function");            \
   Local<Function> VAR = Local<Function>::Cast(args[I]);
 
-#define REQ_ERROR_THROW_NONE(error) if (ret == CL_##error) ThrowException(NanObjectWrapHandle(WebCLException::New(#error, ErrorDesc(CL_##error), CL_##error))); return;
+#define REQ_ERROR_THROW_NONE(error) if (ret == CL_##error) NanThrowError(NanObjectWrapHandle(WebCLException::New(#error, ErrorDesc(CL_##error), CL_##error))); return;
 
-#define REQ_ERROR_THROW(error) if (ret == CL_##error) return ThrowException(NanObjectWrapHandle(WebCLException::New(#error, ErrorDesc(CL_##error), CL_##error)));
+#define REQ_ERROR_THROW(error) if (ret == CL_##error) return NanThrowError(NanObjectWrapHandle(WebCLException::New(#error, ErrorDesc(CL_##error), CL_##error)));
 
 #define DESTROY_WEBCL_OBJECT(obj)	\
   obj->Destructor();
@@ -150,7 +150,7 @@ struct Baton {
 
 namespace CLObjType {
 enum CLObjType {
-  None=0,
+  clObjNone=0,
   Platform,
   Device,
   Context,
@@ -193,7 +193,7 @@ public:
   }
 
 protected:
-  WebCLObject() : _type(CLObjType::None)
+  WebCLObject() : _type(CLObjType::clObjNone)
   {}
 
   virtual ~WebCLObject() {

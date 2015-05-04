@@ -40,7 +40,7 @@ void Event::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(Event::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Event::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(JS_STR("WebCLEvent"));
 
@@ -94,7 +94,7 @@ NAN_METHOD(Event::release)
 #endif
 
   // [mbs] hack that allows some time for ref count in CL driver to propagate (???)
-  while(!v8::V8::IdleNotification()); // force GC
+  while(!NanIdleNotification(16)); // force GC
 
   e->Destructor();
 
@@ -161,7 +161,7 @@ NAN_METHOD(Event::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("Unknown error");
     }
-    NanReturnValue(Integer::NewFromUnsigned(param_value));
+    NanReturnValue(NanNew<Uint32>(param_value));
   }
   default: {
     cl_int ret=CL_INVALID_VALUE;
@@ -340,7 +340,7 @@ void UserEvent::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(UserEvent::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), UserEvent::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(JS_STR("WebCLUserEvent"));
 

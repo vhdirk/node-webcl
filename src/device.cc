@@ -41,7 +41,7 @@ void Device::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(Device::New);
+  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Device::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLDevice"));
 
@@ -123,7 +123,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned((unsigned long)param_value));
+    NanReturnValue(NanNew<Integer>(uint32_t(param_value)));
   }
   break;
   case CL_DEVICE_LOCAL_MEM_TYPE: {
@@ -136,7 +136,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::New(param_value));
+    NanReturnValue(NanNew<Integer>(param_value));
   }
   break;
   case CL_DEVICE_GLOBAL_MEM_CACHE_TYPE: {
@@ -149,7 +149,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::New(param_value));
+    NanReturnValue(NanNew<Integer>(param_value));
   }
   break;
   case CL_DEVICE_EXECUTION_CAPABILITIES: {
@@ -162,7 +162,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned((int)param_value));
+    NanReturnValue(NanNew<Uint32>((int)param_value));
   }
   break;
   case CL_DEVICE_QUEUE_PROPERTIES: {
@@ -175,7 +175,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned((int)param_value));
+    NanReturnValue(NanNew<Uint32>((int)param_value));
   }
   break;
   case CL_DEVICE_HALF_FP_CONFIG:
@@ -190,7 +190,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned((int)param_value));
+    NanReturnValue(NanNew<Uint32>((int)param_value));
   }
   break;
   case CL_DEVICE_MAX_WORK_ITEM_SIZES: {
@@ -219,7 +219,7 @@ NAN_METHOD(Device::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> arr = Array::New(max_work_item_dimensions);
+    Local<Array> arr = Array::New(v8::Isolate::GetCurrent(), max_work_item_dimensions);
     for(cl_uint i=0;i<max_work_item_dimensions;i++)
       arr->Set(i,JS_INT(param_value[i]));
 
@@ -289,7 +289,7 @@ NAN_METHOD(Device::getInfo)
       REQ_ERROR_THROW(OUT_OF_HOST_MEMORY);
       return NanThrowError("UNKNOWN ERROR");
     }
-    NanReturnValue(Integer::NewFromUnsigned(param_value));
+    NanReturnValue(NanNew<Uint32>(param_value));
   }
   break;
   // cl_ulong params
@@ -310,7 +310,7 @@ NAN_METHOD(Device::getInfo)
     // FIXME: handle uint64 somehow
     // JS only supports doubles, v8 has ints, CL params can be uint64
     // the memory params can certainly overflow uint32 size
-    NanReturnValue(Integer::NewFromUnsigned((unsigned int)param_value));
+    NanReturnValue(NanNew<Uint32>((unsigned int)param_value));
   }
   break;
   // size_t params
@@ -338,7 +338,7 @@ NAN_METHOD(Device::getInfo)
     }
     // FIXME: handle 64 bit size_t somehow
     // assume for these params it will fit in an int
-    NanReturnValue(Integer::New((int)param_value));
+    NanReturnValue(NanNew<Integer>((int)param_value));
   }
   break;
   default: {
@@ -376,7 +376,7 @@ NAN_METHOD(Device::enableExtension)
   }
 
   Local<String> name=args[0]->ToString();
-  String::AsciiValue astr(name);
+  String::Utf8Value astr(name);
   bool ret=false;
   if(strcasestr(*astr,"gl_sharing") && (device->availableExtensions & GL_SHARING)) { device->enableExtensions |= GL_SHARING; ret=true; }
   else if(strcasestr(*astr,"fp16") && (device->availableExtensions & FP16))        { device->enableExtensions |= FP16;; ret=true; }
