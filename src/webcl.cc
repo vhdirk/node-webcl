@@ -157,7 +157,7 @@ NAN_METHOD(createContext) {
 
     if(!args[0]->IsArray()) {
       Local<String> name=obj->GetConstructorName();
-      String::Utf8Value astr(name);
+      NanAsciiString astr(name);
       // printf("Found object type: %s\n",*astr);
 
       if(!strcmp(*astr,"WebCLPlatform")) {
@@ -280,7 +280,7 @@ NAN_METHOD(createContext) {
 
           if(!args[1]->IsArray()) {
             Local<String> name=obj->GetConstructorName();
-            String::Utf8Value astr(name);
+            NanAsciiString astr(name);
 
             if(!strcmp(*astr,"WebCLPlatform")) {
               // case 5.2: WebCLContext createContext(WebGLRenderingContext gl, WebCLPlatform platform, optional CLenum deviceType);

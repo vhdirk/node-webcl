@@ -88,7 +88,7 @@ void CommandQueue::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), CommandQueue::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(CommandQueue::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLCommandQueue"));
 
@@ -617,7 +617,7 @@ NAN_METHOD(CommandQueue::enqueueReadBuffer)
   else
     getPtrAndLen(args[4],ptr,len);
 
-  // printf("offset %lu, size %lu, len %lu\n",offset,size,len);
+  printf("offset %lu, size %lu, len %lu\n",offset,size,len);
   if((int)offset>len) {
       cl_int ret=CL_INVALID_VALUE;
       REQ_ERROR_THROW(INVALID_VALUE);

@@ -49,7 +49,7 @@ void Context::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Context::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(Context::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLContext"));
 
@@ -172,7 +172,7 @@ NAN_METHOD(Context::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> arr = Array::New(v8::Isolate::GetCurrent(), (int)n);
+    Local<Array> arr = NanNew<Array>((int)n);
     for(uint32_t i=0;i<n;i++) {
       if(devices[i]) {
         WebCLObject *obj=findCLObj((void*)devices[i], CLObjType::Device);
@@ -200,7 +200,7 @@ NAN_METHOD(Context::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> arr = Array::New(v8::Isolate::GetCurrent(), (int)n);
+    Local<Array> arr = NanNew<Array>((int)n);
     for(uint32_t i=0;i<n;i++) {
       arr->Set(i,JS_INT((int32_t)ctx[i]));
     }
@@ -231,7 +231,7 @@ NAN_METHOD(Context::createProgram)
   // either we pass a code (string) or binary buffers
   if(args[0]->IsString()) {
     Local<String> str = args[0]->ToString();
-    String::Utf8Value astr(str);
+    NanAsciiString astr(str);
 
     size_t lengths[]={(size_t) astr.length()};
     const char *strings[]={*astr};
@@ -449,7 +449,7 @@ NAN_METHOD(Context::createBuffer)
     }
     else if(args[2]->IsObject()) {
       Local<Object> obj=args[2]->ToObject();
-      String::Utf8Value name(obj->GetConstructorName());
+      NanAsciiString name(obj->GetConstructorName());
       if(!strcmp("Buffer",*name))
         host_ptr=Buffer::Data(obj);
       else {
@@ -499,7 +499,7 @@ NAN_METHOD(Context::createImage)
   void *host_ptr=NULL;
   if(!args[2]->IsNull() && !args[2]->IsUndefined() && args[2]->IsObject()) {
     Local<Object> obj=args[2]->ToObject();
-    String::Utf8Value name(obj->GetConstructorName());
+    NanAsciiString name(obj->GetConstructorName());
     if(!strcmp("Buffer",*name))
       host_ptr=Buffer::Data(obj);
     else
@@ -647,9 +647,9 @@ NAN_METHOD(Context::getSupportedImageFormats)
     return NanThrowError("UNKNOWN ERROR");
   }
 
-  Local<Array> imageFormats = Array::New(v8::Isolate::GetCurrent());
+  Local<Array> imageFormats = NanNew<Array>();
   for (uint32_t i=0; i<numEntries; i++) {
-    Local<Object> format = Object::New(v8::Isolate::GetCurrent());
+    Local<Object> format = NanNew<Object>();
     format->Set(JS_STR("channelOrder"), JS_INT(image_formats[i].image_channel_order));
     format->Set(JS_STR("channelType"), JS_INT(image_formats[i].image_channel_data_type));
     format->Set(JS_STR("rowPitch"), JS_INT(0));
@@ -874,7 +874,7 @@ NAN_METHOD(Context::getGLContextInfo)
     return NanThrowError("UNKNOWN ERROR");
   }
 
-  Local<Array> arr = Array::New(numDevicesCL);
+  Local<Array> arr = NanNew<Array>(numDevicesCL);
   arr->Set(0,NanObjectWrapHandle(Device::New(device)));
   for(size_t i=0,j=1;i<numDevicesCL;i++)
     if(devicesCL[i]!=device)

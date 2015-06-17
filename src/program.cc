@@ -44,7 +44,7 @@ void Program::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Program::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(Program::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLProgram"));
 
@@ -435,7 +435,7 @@ NAN_METHOD(Program::build)
 
   char *options=NULL;
   if(!args[1]->IsUndefined() && !args[1]->IsNull() && args[1]->IsString()) {
-    String::Utf8Value str(args[1]);
+    NanAsciiString str(args[1]);
     // cout<<"str length: "<<str.length()<<endl;
 
     if(str.length()>0) {
@@ -510,7 +510,7 @@ NAN_METHOD(Program::createKernel)
   Program *prog = ObjectWrap::Unwrap<Program>(args.This());
 
   Local<String> str = args[0]->ToString();
-  String::Utf8Value astr(str);
+  NanAsciiString astr(str);
 
   cl_int ret = CL_SUCCESS;
   cl_kernel kw = ::clCreateKernel(prog->getProgram(), (const char*) *astr, &ret);
@@ -536,7 +536,7 @@ NAN_METHOD(Program::createKernelsInProgram)
   Program *prog = ObjectWrap::Unwrap<Program>(args.This());
 
   Local<String> str = args[0]->ToString();
-  String::Utf8Value astr(str);
+  NanAsciiString astr(str);
 
   cl_uint num_kernels=0;
   cl_kernel *kernels=NULL;

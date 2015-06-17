@@ -40,7 +40,7 @@ void Sampler::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Sampler::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(Sampler::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLSampler"));
 

@@ -79,7 +79,7 @@ void WebCLException::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLException::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(WebCLException::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLException"));
 

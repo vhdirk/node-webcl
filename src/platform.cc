@@ -184,7 +184,7 @@ NAN_METHOD(Platform::enableExtension)
   }
 
   Local<String> name=args[0]->ToString();
-  String::Utf8Value astr(name);
+  NanAsciiString astr(name);
   bool ret=false;
   if(strcasestr(*astr,"gl_sharing") && (platform->availableExtensions & GL_SHARING)) { platform->enableExtensions |= GL_SHARING; ret = true; }
   else if(strcasestr(*astr,"fp16") && (platform->availableExtensions & FP16))        { platform->enableExtensions |= FP16; ret = true; }
@@ -220,4 +220,3 @@ Platform *Platform::New(cl_platform_id pid)
 }
 
 } // namespace webcl
-

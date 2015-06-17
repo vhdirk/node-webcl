@@ -40,7 +40,7 @@ void MemoryObject::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), MemoryObject::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(MemoryObject::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLMemoryObject"));
 
@@ -265,7 +265,7 @@ void WebCLBuffer::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLBuffer::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(WebCLBuffer::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLBuffer"));
 
@@ -403,7 +403,7 @@ void WebCLImage::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLImage::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(WebCLImage::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLImage"));
 
@@ -528,7 +528,7 @@ void WebCLImageDescriptor::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), WebCLImageDescriptor::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(WebCLImageDescriptor::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLImageDescriptor"));
 

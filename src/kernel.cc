@@ -45,7 +45,7 @@ void Kernel::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Kernel::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(Kernel::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLKernel"));
 
@@ -368,7 +368,7 @@ NAN_METHOD(Kernel::setArg)
   }
 
   if(args[1]->IsObject()) {
-    String::Utf8Value str(args[1]->ToObject()->GetConstructorName());
+    NanAsciiString str(args[1]->ToObject()->GetConstructorName());
     if(!strcmp("WebCLSampler",*str)) {
       // WebCLSampler
       Sampler *s = ObjectWrap::Unwrap<Sampler>(args[1]->ToObject());
@@ -383,14 +383,14 @@ NAN_METHOD(Kernel::setArg)
     }
     else if(!strcmp(*str, "WebCLBuffer") || !strcmp(*str, "WebCLImage")) {
       // WebCLBuffer and WebCLImage
-      // printf("[SetArg] mem object\n");
+      //printf("[SetArg] mem object\n");
       MemoryObject *mo = ObjectWrap::Unwrap<MemoryObject>(args[1]->ToObject());
       cl_mem mem = mo->getMemory();
       ret = ::clSetKernelArg(k, arg_index, sizeof(cl_mem), &mem);
     }
     else if(!args[1]->IsArray()) {
       Local<Object> obj=args[1]->ToObject();
-      String::Utf8Value name(obj->GetConstructorName());
+      NanAsciiString name(obj->GetConstructorName());
       char *host_ptr=NULL;
       int len=0;
       int bytes=0;
@@ -401,15 +401,23 @@ NAN_METHOD(Kernel::setArg)
       }
       else {
         // ArrayBufferView
+        //printf("[SetArg] ArrayBufferView\n");
+
         host_ptr= (char*) (obj->GetIndexedPropertiesExternalArrayData());
         len=obj->GetIndexedPropertiesExternalArrayDataLength(); // number of elements
         bytes=obj->Get(JS_STR("byteLength"))->Uint32Value();
+        //printf("[SetArg] ArrayBufferView end\n");
+
         // int byteOffset=obj->Get(JS_STR("byteOffset"))->Uint32Value();
+        //printf("TypedArray: len %d, bytes %d \n",len,bytes);
       }
-      // printf("TypedArray: len %d, bytes %d, byteOffset %d\n",len,bytes,byteOffset);
+
+      //printf("clGetKernelArgInfo %i", k == NULL);
 
       char typeName[16];
       ret = ::clGetKernelArgInfo(k, arg_index, CL_KERNEL_ARG_TYPE_NAME, sizeof(typeName), typeName, NULL);
+
+      //printf("clGetKernelArgInfo ");
 
       if(len>1) {
         for(int i=0;i<nTypes;i++) {
@@ -428,23 +436,23 @@ NAN_METHOD(Kernel::setArg)
 
       if(len == 1) {
         // handle __local params
-        // printf("[setArg] index %d has 1 value\n",arg_index);
+        printf("[setArg] index %d has 1 value\n",arg_index);
         cl_kernel_arg_address_qualifier addr=0;
         ret = ::clGetKernelArgInfo(k, arg_index, CL_KERNEL_ARG_ADDRESS_QUALIFIER,
                               sizeof(cl_kernel_arg_address_qualifier), &addr, NULL);
         if(addr == CL_KERNEL_ARG_ADDRESS_LOCAL) {
-          // printf("  index %d size: %d\n",arg_index,*((cl_int*) host_ptr));
+          printf("  index %d size: %d\n",arg_index,*((cl_int*) host_ptr));
           ret = ::clSetKernelArg(k, arg_index, *((cl_int*) host_ptr), NULL);
-          // printf("[setArg __local] ret = %d\n",ret);
+          printf("[setArg __local] ret = %d\n",ret);
         }
         else {
           ret = ::clSetKernelArg(k, arg_index, bytes, host_ptr);
-          // printf("ret1= %d\n",ret);
+          printf("ret1= %d\n",ret);
         }
       }
       else {
         ret = ::clSetKernelArg(k, arg_index, bytes, host_ptr);
-        // printf("ret2= %d\n",ret);
+        printf("ret2= %d\n",ret);
       }
    }
     else

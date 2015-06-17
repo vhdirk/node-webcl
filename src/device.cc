@@ -41,7 +41,7 @@ void Device::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Device::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(Device::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(NanNew<String>("WebCLDevice"));
 
@@ -219,7 +219,7 @@ NAN_METHOD(Device::getInfo)
       return NanThrowError("UNKNOWN ERROR");
     }
 
-    Local<Array> arr = Array::New(v8::Isolate::GetCurrent(), max_work_item_dimensions);
+    Local<Array> arr = NanNew<Array>(max_work_item_dimensions);
     for(cl_uint i=0;i<max_work_item_dimensions;i++)
       arr->Set(i,JS_INT(param_value[i]));
 
@@ -376,7 +376,7 @@ NAN_METHOD(Device::enableExtension)
   }
 
   Local<String> name=args[0]->ToString();
-  String::Utf8Value astr(name);
+  NanAsciiString astr(name);
   bool ret=false;
   if(strcasestr(*astr,"gl_sharing") && (device->availableExtensions & GL_SHARING)) { device->enableExtensions |= GL_SHARING; ret=true; }
   else if(strcasestr(*astr,"fp16") && (device->availableExtensions & FP16))        { device->enableExtensions |= FP16;; ret=true; }

@@ -40,7 +40,7 @@ void Event::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), Event::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(Event::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(JS_STR("WebCLEvent"));
 
@@ -340,7 +340,7 @@ void UserEvent::Init(Handle<Object> exports)
   NanScope();
 
   // constructor
-  Local<FunctionTemplate> ctor = FunctionTemplate::New(v8::Isolate::GetCurrent(), UserEvent::New);
+  Local<FunctionTemplate> ctor = NanNew<FunctionTemplate>(UserEvent::New);
   ctor->InstanceTemplate()->SetInternalFieldCount(1);
   ctor->SetClassName(JS_STR("WebCLUserEvent"));
 
