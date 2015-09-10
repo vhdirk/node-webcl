@@ -138,7 +138,9 @@ NAN_METHOD(Kernel::getInfo)
       if(obj)
         NanReturnValue(NanObjectWrapHandle(obj));
       else {
+#ifdef LOGGING
         printf("Creating new context\n");
+#endif
         NanReturnValue(NanObjectWrapHandle(Context::New(param_value)));
       }
     }
@@ -159,7 +161,9 @@ NAN_METHOD(Kernel::getInfo)
       if(obj)
         NanReturnValue(NanObjectWrapHandle(obj));
       else {
+#ifdef LOGGING
         printf("Creating new program\n");
+#endif
         NanReturnValue(NanObjectWrapHandle(Program::New(p, NULL)));
       }
     }
@@ -436,23 +440,23 @@ NAN_METHOD(Kernel::setArg)
 
       if(len == 1) {
         // handle __local params
-        printf("[setArg] index %d has 1 value\n",arg_index);
+        //printf("[setArg] index %d has 1 value\n",arg_index);
         cl_kernel_arg_address_qualifier addr=0;
         ret = ::clGetKernelArgInfo(k, arg_index, CL_KERNEL_ARG_ADDRESS_QUALIFIER,
                               sizeof(cl_kernel_arg_address_qualifier), &addr, NULL);
         if(addr == CL_KERNEL_ARG_ADDRESS_LOCAL) {
-          printf("  index %d size: %d\n",arg_index,*((cl_int*) host_ptr));
+          //printf("  index %d size: %d\n",arg_index,*((cl_int*) host_ptr));
           ret = ::clSetKernelArg(k, arg_index, *((cl_int*) host_ptr), NULL);
-          printf("[setArg __local] ret = %d\n",ret);
+          //printf("[setArg __local] ret = %d\n",ret);
         }
         else {
           ret = ::clSetKernelArg(k, arg_index, bytes, host_ptr);
-          printf("ret1= %d\n",ret);
+          //printf("ret1= %d\n",ret);
         }
       }
       else {
         ret = ::clSetKernelArg(k, arg_index, bytes, host_ptr);
-        printf("ret2= %d\n",ret);
+        //printf("ret2= %d\n",ret);
       }
    }
     else

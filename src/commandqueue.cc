@@ -188,7 +188,9 @@ NAN_METHOD(CommandQueue::getInfo)
     }
     if(ctx) {
       WebCLObject *obj=findCLObj((void*)ctx, CLObjType::Context);
+#ifdef LOGGING
       printf("[CQ.getInfo(CONTEXT)] %p\n",obj);
+#endif
       if(obj)
         NanReturnValue(NanObjectWrapHandle(obj));
       else
@@ -617,7 +619,7 @@ NAN_METHOD(CommandQueue::enqueueReadBuffer)
   else
     getPtrAndLen(args[4],ptr,len);
 
-  printf("offset %lu, size %lu, len %lu\n",offset,size,len);
+  //printf("offset %lu, size %lu, len %lu\n",offset,size,len);
   if((int)offset>len) {
       cl_int ret=CL_INVALID_VALUE;
       REQ_ERROR_THROW(INVALID_VALUE);
@@ -1472,7 +1474,9 @@ NAN_METHOD(CommandQueue::enqueueMapBuffer)
   Local<Object> buf=NanNewBufferHandle((char*) result, size, free_callback, NULL);
   // printf("[map] result %p, wrapped data %p\n", result, node::Buffer::Data(buf));
   if(node::Buffer::Data(buf) != result) {
+#ifdef LOGGING
     printf("WARNING: data buffer has been copied\n");
+#endif
   }
 
   if(!no_event) {
